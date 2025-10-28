@@ -1,0 +1,3 @@
+python-telegram-bot==21.3
+aiohttp==3.10.5
+apscheduler==3.10.4

@@ -81,7 +81,7 @@ async def enviar_ofertas_diarias():
 # ----------------------------
 async def main():
     scheduler = AsyncIOScheduler(timezone="America/Sao_Paulo")
-    scheduler.add_job(enviar_ofertas_diarias, "cron", hour=9, minute=0)
+    scheduler.add_job(enviar_ofertas_diarias, "cron", hour=9, minute=20)
     scheduler.add_job(enviar_ofertas_diarias, "cron", hour=15, minute=0)
     scheduler.add_job(enviar_ofertas_diarias, "cron", hour=19, minute=0)
     scheduler.start()

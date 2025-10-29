@@ -10,19 +10,19 @@ from pytz import timezone
 # ----------------------------
 # CONFIGURAÇÕES
 # ----------------------------
-TOKEN = "8398854819:AAHGCzNKqDt0arAx6Fipx2ATbYwtZSA-eLU"
-CHAT_ID = "89415579"
+TOKEN = "SEU_TOKEN_AQUI"
+CHAT_ID = "SEU_CHAT_ID_AQUI"
 PALAVRAS_CHAVE = ["iphone 15 pro", "ssd", "mac mini m4", "monitor gamer", "cadeira gamer"]
 
 # ----------------------------
-# FUNÇÕES DE BUSCA DE OFERTAS
+# BUSCA DE OFERTAS REAIS (Mercado Livre)
 # ----------------------------
 async def buscar_mercadolivre(session, termo):
-    url = f"https://api.mercadolibre.com/sites/MLB/search?q={termo.replace(' ', '+')}"
+    url = f"https://api.mercadolibre.com/sites/MLB/search?q={termo.replace(' ', '+')}&limit=10"
     async with session.get(url) as resp:
         data = await resp.json()
         resultados = []
-        for item in data.get("results", [])[:3]:  # até 3 ofertas por termo
+        for item in data.get("results", []):
             resultados.append({
                 "titulo": item["title"],
                 "preco": f'R${item["price"]:.2f}',
@@ -32,42 +32,8 @@ async def buscar_mercadolivre(session, termo):
             })
         return resultados
 
-async def buscar_amazon(session, termo):
-    return [
-        {
-            "titulo": f"{termo.title()} - Oferta Amazon 🔥",
-            "preco": "R$ 5.499,00",
-            "imagem": "https://m.media-amazon.com/images/I/61aUBxqc5PL._AC_SL1500_.jpg",
-            "link": f"https://www.amazon.com.br/s?k={termo.replace(' ', '+')}",
-            "site": "Amazon"
-        }
-    ]
-
-async def buscar_aliexpress(session, termo):
-    url = f"https://m.aliexpress.com/wholesale/{termo.replace(' ', '-')}.html"
-    return [
-        {
-            "titulo": f"{termo.title()} - Promoção AliExpress 💥",
-            "preco": "A partir de R$ 299,00",
-            "imagem": "https://ae01.alicdn.com/kf/Sa7c3b27f1d6148f2b4c2e2b64a70b0e7M.jpg",
-            "link": url,
-            "site": "AliExpress"
-        }
-    ]
-
-async def buscar_shopee(session, termo):
-    return [
-        {
-            "titulo": f"{termo.title()} - Desconto Shopee 🧡",
-            "preco": "R$ 279,00",
-            "imagem": "https://down-br.img.susercontent.com/file/br-11134207-7r98v-lvjz43er4k7p13",
-            "link": f"https://shopee.com.br/search?keyword={termo.replace(' ', '%20')}",
-            "site": "Shopee"
-        }
-    ]
-
 # ----------------------------
-# ENVIO DE MENSAGENS TELEGRAM
+# ENVIO TELEGRAM
 # ----------------------------
 async def enviar_oferta(bot, oferta):
     mensagem = f"""💥 *{oferta['titulo']}*
@@ -92,22 +58,17 @@ async def enviar_ofertas_diarias():
     async with aiohttp.ClientSession() as session:
         todas_ofertas = []
 
-        # Busca todas as ofertas de todos os termos
+        # Busca produtos reais de cada termo
         for termo in PALAVRAS_CHAVE:
-            ofertas = []
-            ofertas += await buscar_mercadolivre(session, termo)
-            ofertas += await buscar_amazon(session, termo)
-            ofertas += await buscar_aliexpress(session, termo)
-            ofertas += await buscar_shopee(session, termo)
+            ofertas = await buscar_mercadolivre(session, termo)
             todas_ofertas.extend(ofertas)
 
-        # Escolhe aleatoriamente até 4 ofertas diferentes
+        # Seleciona 4 ofertas aleatórias entre todos os produtos
         if len(todas_ofertas) > 4:
             ofertas_selecionadas = random.sample(todas_ofertas, 4)
         else:
             ofertas_selecionadas = todas_ofertas
 
-        # Envia uma a uma com pequeno intervalo
         for oferta in ofertas_selecionadas:
             await enviar_oferta(bot, oferta)
             await asyncio.sleep(2)
@@ -116,7 +77,7 @@ async def enviar_ofertas_diarias():
         print(f"✅ Envio concluído às {hora} (horário de Brasília)")
 
 # ----------------------------
-# AGENDAMENTO (3 VEZES AO DIA)
+# AGENDAMENTO 3x POR DIA
 # ----------------------------
 async def main():
     scheduler = AsyncIOScheduler(timezone="America/Sao_Paulo")
@@ -125,9 +86,10 @@ async def main():
     scheduler.add_job(enviar_ofertas_diarias, "cron", hour=19, minute=0)
     scheduler.start()
 
-    print("🤖 Bot de ofertas ativo! Envia às 9h, 15h e 19h (horário de Brasília)")
+    print("🤖 Bot de ofertas rodando (Brasília): 9h, 15h, 19h")
     while True:
         await asyncio.sleep(3600)
 
 if __name__ == "__main__":
     asyncio.run(main())
+

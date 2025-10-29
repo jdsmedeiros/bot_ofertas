@@ -10,8 +10,8 @@ from pytz import timezone
 # ----------------------------
 # CONFIGURAÇÕES
 # ----------------------------
-TOKEN = "SEU_TOKEN_AQUI"
-CHAT_ID = "SEU_CHAT_ID_AQUI"
+TOKEN = "8398854819:AAHGCzNKqDt0arAx6Fipx2ATbYwtZSA-eLU"
+CHAT_ID = "89415579"
 PALAVRAS_CHAVE = ["iphone 15 pro", "ssd", "mac mini m4", "monitor gamer", "cadeira gamer"]
 
 # ----------------------------
@@ -81,7 +81,7 @@ async def enviar_ofertas_diarias():
 # ----------------------------
 async def main():
     scheduler = AsyncIOScheduler(timezone="America/Sao_Paulo")
-    scheduler.add_job(enviar_ofertas_diarias, "cron", hour=9, minute=20)
+    scheduler.add_job(enviar_ofertas_diarias, "cron", hour=10, minute=5)
     scheduler.add_job(enviar_ofertas_diarias, "cron", hour=15, minute=0)
     scheduler.add_job(enviar_ofertas_diarias, "cron", hour=19, minute=0)
     scheduler.start()

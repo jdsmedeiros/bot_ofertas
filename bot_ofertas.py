@@ -22,7 +22,7 @@ async def buscar_mercadolivre(session, termo):
     async with session.get(url) as resp:
         data = await resp.json()
         resultados = []
-        for item in data.get("results", []):
+        for item in data.get("results", [])[:3]:
             resultados.append({
                 "titulo": item["title"],
                 "preco": f'R${item["price"]:.2f}',
@@ -83,7 +83,7 @@ async def main():
     scheduler = AsyncIOScheduler(timezone="America/Sao_Paulo")
     scheduler.add_job(enviar_ofertas_diarias, "cron", hour=10, minute=35)
     scheduler.add_job(enviar_ofertas_diarias, "cron", hour=15, minute=0)
-    scheduler.add_job(enviar_ofertas_diarias, "cron", hour=19, minute=0)
+    scheduler.add_job(enviar_ofertas_diarias, "cron", hour=19, minute=10)
     scheduler.start()
 
     print("🤖 Bot de ofertas rodando (Brasília): 9h, 15h, 19h")
